@@ -1,0 +1,35 @@
+name: Publish Documentation
+
+on:
+  push:
+    branches: [ main ] # o la rama que uses
+
+jobs:
+  docfx:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Install DocFX
+        run: |
+          wget https://github.com/dotnet/docfx/releases/download/v2.59.4/docfx.zip -O docfx.zip
+          unzip docfx.zip -d docfx
+          echo "$(pwd)/docfx" >> $GITHUB_PATH
+
+      - name: Build documentation
+        run: |
+          docfx metadata docfx.json
+          docfx build docfx.json
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages         # rama a donde se subirá el sitio
+          folder: _site            # carpeta generada por docfx
