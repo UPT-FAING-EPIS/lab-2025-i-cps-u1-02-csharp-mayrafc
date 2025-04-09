@@ -24,8 +24,9 @@ jobs:
 
       - name: Build documentation
         run: |
-          docfx metadata docs/docfx.json
-          docfx build docs/docfx.json
+          docfx metadata Bank/docs/docfx.json
+          docfx build Bank/docs/docfx.json
+
 
 
       - name: Deploy to GitHub Pages
