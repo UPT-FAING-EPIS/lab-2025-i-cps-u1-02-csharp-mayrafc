@@ -31,17 +31,15 @@ jobs:
     - name: Run unit tests
       run: dotnet test Bank/Bank.WebApi/Bank.WebApi.csproj --logger "trx" --results-directory ./TestResults
 
-      # Paso 5: Análisis con SonarCloud
+    # Paso 5: Análisis con SonarCloud
     - name: SonarCloud Analysis
       uses: SonarSource/sonarcloud-github-action@v2
       with:
-        args: >
-          -Dsonar.projectKey=apibankk_lab2
-          -Dsonar.organization=apibankk
-          -Dsonar.token=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.sources=.
-          -Dsonar.host.url=https://sonarcloud.io
-          -Dsonar.scm.revision=main
+        projectBaseDir: Bank  # Ruta base del proyecto
+        sonar.projectKey: 'apibankk_lab2'  # El key del proyecto en SonarCloud
+        sonar.organization: 'apibankk'  # El nombre de tu organización en SonarCloud
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Token de SonarCloud
 
     # Paso 6: Construir el paquete NuGet
     - name: Build NuGet Package
