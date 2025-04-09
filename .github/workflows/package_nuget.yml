@@ -45,19 +45,19 @@ jobs:
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Token de SonarCloud
 
-    # Paso 6: Construir el paquete NuGet
+    # Paso 6: Crear el directorio ./nupkgs si no existe
+    - name: Create nupkgs directory if not exists
+      run: mkdir -p ./nupkgs  # Aseguramos que el directorio existe antes de intentar generar el paquete
+
+    # Paso 7: Construir el paquete NuGet
     - name: Build NuGet Package
       run: dotnet pack Bank/Bank.WebApi/Bank.WebApi.csproj -o ./nupkgs  # Genera el archivo .nupkg en ./nupkgs
 
-    # Paso 7: Verificar que el archivo .nupkg se haya generado
+    # Paso 8: Verificar que el archivo .nupkg se haya generado
     - name: Verify .nupkg file
       run: |
         echo "Listing contents of ./nupkgs:"
         ls -la ./nupkgs  # Usa 'ls -la' para obtener más detalles y ver si el archivo se generó correctamente
-
-    # Paso 8: Crear el directorio nupkgs si no existe (en caso de que no se haya generado)
-    - name: Create nupkgs directory if not exists
-      run: mkdir -p ./nupkgs  # Crear el directorio si no existe
 
     # Paso 9: Publicar el paquete NuGet en GitHub Packages
     - name: Publish NuGet Package to GitHub Packages
