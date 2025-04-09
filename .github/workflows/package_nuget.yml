@@ -25,7 +25,7 @@ jobs:
 
     # Paso 3: Restaurar dependencias
     - name: Restore dependencies
-      run: dotnet restore Bank/Bank.WebApi/Bank.WebApi.csproj  # Restaura las dependencias del proyecto
+      run: dotnet restore Bank/Bank.WebApi/Bank.WebApi.csproj
 
     # Paso 4: Ejecutar pruebas unitarias
     - name: Run unit tests
@@ -35,19 +35,18 @@ jobs:
     - name: SonarCloud Analysis
       uses: SonarSource/sonarcloud-github-action@v2
       with:
-        projectBaseDir: Bank  # Ruta base del proyecto
+        organization: apibankk                # <- Organización en SonarCloud
+        projectKey: apibankk_lab2             # <- Clave del proyecto en SonarCloud
+        projectBaseDir: Bank                  # <- Ruta donde está el .csproj o solución
       env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # Token de SonarCloud
-        SONAR_ORG: 'apibankk'  # Nombre de la organización en SonarCloud
-        SONAR_PROJECT: 'apibankk_lab2'  # Key del proyecto de SonarCloud
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     # Paso 6: Construir el paquete NuGet
     - name: Build NuGet Package
-      run: dotnet pack Bank/Bank.Domain/Bank.Domain.csproj -o ./nupkgs  # Construye el archivo .nupkg
+      run: dotnet pack Bank/Bank.Domain/Bank.Domain.csproj -o ./nupkgs
 
     # Paso 7: Publicar el paquete NuGet en GitHub Packages
     - name: Publish NuGet Package to GitHub Packages
-      run: |
-        dotnet nuget push ./nupkgs/*.nupkg --source "github" --api-key ${{ secrets.GITHUB_TOKEN }}
+      run: dotnet nuget push ./nupkgs/*.nupkg --source "github" --api-key ${{ secrets.GITHUB_TOKEN }}
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Usando el token de GitHub para autenticar la publicación
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
