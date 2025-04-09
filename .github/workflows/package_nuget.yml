@@ -47,7 +47,7 @@ jobs:
 
     # Paso 6: Construir el paquete NuGet
     - name: Build NuGet Package
-      run: dotnet pack Bank/Bank.Domain/Bank.Domain.csproj -o ./nupkgs  # Construye el archivo .nupkg
+      run: dotnet pack Bank/Bank.WebApi/Bank.WebApi.csproj -o ./nupkgs  # Construye el archivo .nupkg
 
     # Paso 7: Crear el directorio nupkgs si no existe
     - name: Create nupkgs directory
