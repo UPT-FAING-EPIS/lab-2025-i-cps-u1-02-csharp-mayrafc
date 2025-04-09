@@ -17,7 +17,16 @@ jobs:
         run: snyk code test --sarif-file-output=snyk.sarif
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}          
+      - name: Install snyk-to-html
+        run: npm install -g snyk-to-html  # Instalar snyk-to-html si no está disponible
+      - name: Generate HTML report
+        run: snyk-to-html -o snyk-report.html < snyk.sarif
       - name: Upload result to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk.sarif
+      - name: Upload HTML report as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: snyk-report
+          path: snyk-report.html
