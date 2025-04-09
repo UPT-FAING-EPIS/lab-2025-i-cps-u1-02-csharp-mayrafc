@@ -3,46 +3,53 @@ name: .NET Build and Publish NuGet Package
 on:
   push:
     branches:
-      - main
+      - main  # Ejecuta en cada push a la rama principal
   pull_request:
     branches:
-      - main
+      - main  # Ejecuta en pull requests hacia la rama principal
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+    # Paso 1: Configurar .NET
     - name: Set up .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '8.0'
+        dotnet-version: '8.0'  # Versión de .NET
 
+    # Paso 2: Checkout del código fuente
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    # Paso 3: Restaurar dependencias
     - name: Restore dependencies
-      run: dotnet restore Bank/Bank.WebApi/Bank.WebApi.csproj
+      run: dotnet restore Bank/Bank.WebApi/Bank.WebApi.csproj  # Restaura las dependencias del proyecto
 
+    # Paso 4: Ejecutar pruebas unitarias
     - name: Run unit tests
       run: dotnet test Bank/Bank.WebApi/Bank.WebApi.csproj --logger "trx" --results-directory ./TestResults
 
-    # 🔧 Paso importante: SonarCloud análisis
+    # Paso 5: Análisis con SonarCloud
     - name: SonarCloud Analysis
       uses: SonarSource/sonarcloud-github-action@v2
       with:
-        args: >
-          -Dsonar.projectKey=apibankk_lab2
-          -Dsonar.organization=apibankk
-          -Dsonar.token=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.sources=.
-          -Dsonar.host.url=https://sonarcloud.io
+        projectBaseDir: Bank  # Ruta base del proyecto
       env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # Token de SonarCloud
+        SONAR_ORG: 'apibankk'  # Nombre de la organización en SonarCloud
+        SONAR_PROJECT: 'apibankk_lab2'  # Key del proyecto de SonarCloud
 
+    # Paso 6: Construir el paquete NuGet
     - name: Build NuGet Package
-      run: dotnet pack Bank/Bank.WebApi/Bank.WebApi.csproj -o ./nupkgs
+      run: dotnet pack Bank/Bank.Domain/Bank.Domain.csproj -o ./nupkgs  # Construye el archivo .nupkg
 
+    # Paso 7: Crear el directorio nupkgs si no existe
+    - name: Create nupkgs directory
+      run: mkdir -p ./nupkgs  # Crear el directorio si no existe
+
+    # Paso 8: Publicar el paquete NuGet en GitHub Packages
     - name: Publish NuGet Package to GitHub Packages
       run: |
         dotnet nuget add source "https://nuget.pkg.github.com/mayrafc/index.json" \
@@ -53,4 +60,4 @@ jobs:
 
         dotnet nuget push ./nupkgs/*.nupkg --source "github"
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Este token es automático, no necesitas configurarlo manualmente.
