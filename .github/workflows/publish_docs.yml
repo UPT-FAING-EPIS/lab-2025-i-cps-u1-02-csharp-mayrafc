@@ -21,13 +21,14 @@ jobs:
         run: |
           wget https://github.com/dotnet/docfx/releases/download/v2.59.4/docfx.zip -O docfx.zip
           unzip docfx.zip -d docfx
-          chmod +x docfx/docfx   # 👈 Esto da permisos de ejecución
-          echo "$(pwd)/docfx" >> $GITHUB_PATH
+          DOCFX_PATH=$(find docfx -name docfx -type f | head -n 1)
+          chmod +x "$DOCFX_PATH"
+          echo "$(dirname "$DOCFX_PATH")" >> $GITHUB_PATH
 
       - name: Build documentation
         run: |
-          docfx/docfx metadata docfx.json
-          docfx/docfx build docfx.json
+          docfx metadata docfx.json
+          docfx build docfx.json
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
