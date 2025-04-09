@@ -45,36 +45,36 @@ jobs:
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Token de SonarCloud
 
-    # Paso 6: Crear el directorio ./nupkgs si no existe
+   # Paso 6: Crear el directorio ./nupkgs si no existe
     - name: Create nupkgs directory if not exists
-      run: mkdir -p ./nupkgs  # Aseguramos que el directorio existe antes de intentar generar el paquete
+      run: mkdir -p ./nupkgs  # Aseguramos que el directorio existe antes de generar el paquete
 
     # Paso 7: Construir el paquete NuGet
     - name: Build NuGet Package
-      run: dotnet pack Bank/Bank.WebApi/Bank.WebApi.csproj -o ./nupkgs  # Genera el archivo .nupkg en ./nupkgs
+      run: |
+        dotnet pack Bank/Bank.WebApi/Bank.WebApi.csproj -o ./nupkgs
+        echo "Listing contents of ./nupkgs:"
+        ls -la ./nupkgs  # Verificamos los archivos generados
 
-    # Paso 8: Verificar que el archivo .nupkg se haya generado
+    # Paso 8: Verificar si se generó el archivo .nupkg
     - name: Verify .nupkg file
       run: |
-        echo "Listing contents of ./nupkgs:"
-        ls -la ./nupkgs  # Verificamos los archivos generados para asegurar que el .nupkg exista
+        if [ -f ./nupkgs/*.nupkg ]; then
+          echo ".nupkg file found!"
+        else
+          echo "No .nupkg file found, aborting publish step!"
+          exit 1  # Abortamos si el archivo no se encuentra
+        fi
 
     # Paso 9: Publicar el paquete NuGet en GitHub Packages
     - name: Publish NuGet Package to GitHub Packages
       run: |
-        # Verificamos nuevamente que el archivo .nupkg existe antes de intentar la publicación
-        if [ -f ./nupkgs/*.nupkg ]; then
-          echo "Found .nupkg file, proceeding to push..."
-          dotnet nuget add source "https://nuget.pkg.github.com/mayrafc/index.json" \
-            --name github \
-            --username mayrafc \
-            --password ${{ secrets.GITHUB_TOKEN }} \
-            --store-password-in-clear-text
+        dotnet nuget add source "https://nuget.pkg.github.com/mayrafc/index.json" \
+          --name github \
+          --username mayrafc \
+          --password ${{ secrets.GITHUB_TOKEN }} \
+          --store-password-in-clear-text
 
-          dotnet nuget push ./nupkgs/*.nupkg --source "github"
-        else
-          echo "No .nupkg file found, aborting publish step!"
-          exit 1  # Esto abortará la acción si no se encuentra el archivo
-        fi
+        dotnet nuget push ./nupkgs/*.nupkg --source "github"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Este token es automático, no necesitas configurarlo manualmente.
