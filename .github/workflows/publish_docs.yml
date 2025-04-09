@@ -21,6 +21,7 @@ jobs:
         run: |
           wget https://github.com/dotnet/docfx/releases/download/v2.59.4/docfx.zip -O docfx.zip
           unzip docfx.zip -d docfx
+          chmod +x docfx/docfx   # 👈 Esto da permisos de ejecución
           echo "$(pwd)/docfx" >> $GITHUB_PATH
 
       - name: Build documentation
