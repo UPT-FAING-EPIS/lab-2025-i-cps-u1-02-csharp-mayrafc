@@ -2,7 +2,7 @@ name: Publish Documentation
 
 on:
   push:
-    branches: [ main ]  # O la rama que uses
+    branches: [main]  # O la rama que uses
 
 jobs:
   docfx:
@@ -17,12 +17,11 @@ jobs:
         with:
           dotnet-version: '8.x'
 
-      # Paso para instalar DocFX
+      # Paso para instalar DocFX usando .NET CLI
       - name: Install DocFX
         run: |
-          wget https://github.com/dotnet/docfx/releases/download/v2.59.4/docfx.zip -O docfx.zip
-          unzip docfx.zip -d docfx
-          echo "$(pwd)/docfx" >> $GITHUB_PATH
+          dotnet tool install --global docfx --version 2.59.4
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH  # Asegura que el path del tool esté disponible
 
       - name: Build documentation
         run: |
