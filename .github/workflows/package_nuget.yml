@@ -1,54 +1,53 @@
-name: Package and Analyze with SonarCloud
+name: .NET Build and Publish NuGet Package
 
 on:
   push:
     branches:
-      - main  # Se ejecuta cuando hay un push a la rama principal
+      - main  # Ejecuta en cada push a la rama principal
+  pull_request:
+    branches:
+      - main  # Ejecuta en pull requests hacia la rama principal
 
 jobs:
-  build-and-analyze:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      # Paso 1: Checkout del código
-      - name: Checkout code
-        uses: actions/checkout@v4
+    # Paso 1: Configurar .NET
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0'  # Versión de .NET
 
-      # Paso 2: Configurar .NET
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.x'
+    # Paso 2: Checkout del código fuente
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      # Paso 3: Restaurar dependencias (ajustar la ruta de tu archivo .csproj)
-      - name: Restore dependencies
-        run: dotnet restore Bank/Bank.WebApi/Bank.WebApi.csproj
+    # Paso 3: Restaurar dependencias
+    - name: Restore dependencies
+      run: dotnet restore Bank/Bank.WebApi/Bank.WebApi.csproj  # Restaura las dependencias del proyecto
 
-      # Paso 4: Ejecutar pruebas unitarias
-      - name: Run Unit Tests
-        run: dotnet test Bank/Bank.WebApi/Bank.WebApi.csproj --no-build --verbosity normal
+    # Paso 4: Ejecutar pruebas unitarias
+    - name: Run unit tests
+      run: dotnet test Bank/Bank.WebApi/Bank.WebApi.csproj --logger "trx" --results-directory ./TestResults
 
-      # Paso 5: Análisis con SonarCloud
-      - name: SonarCloud Analysis
-        uses: SonarSource/sonarcloud-github-action@v2
-        with:
-          organization: 'apibankk'
-          projectKey: 'apibankk_lab2'
-          projectName: 'lab2'
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    # Paso 5: Análisis con SonarCloud
+    - name: SonarCloud Analysis
+      uses: SonarSource/sonarcloud-github-action@v2
+      with:
+        projectBaseDir: Bank  # Ruta base del proyecto
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # Token de SonarCloud
+        SONAR_ORG: 'apibankk'  # Nombre de la organización en SonarCloud
+        SONAR_PROJECT: 'apibankk_lab2'  # Key del proyecto de SonarCloud
 
-      # Paso 6: Construir el proyecto
-      - name: Build .NET Project
-        run: dotnet build Bank/Bank.WebApi/Bank.WebApi.csproj --configuration Release
+    # Paso 6: Construir el paquete NuGet
+    - name: Build NuGet Package
+      run: dotnet pack Bank/Bank.Domain/Bank.Domain.csproj -o ./nupkgs  # Construye el archivo .nupkg
 
-      # Paso 7: Crear paquete NuGet
-      - name: Create NuGet Package
-        run: dotnet pack Bank/Bank.WebApi/Bank.WebApi.csproj --configuration Release --output ./nuget
-
-      # Paso 8: Publicar paquete NuGet en GitHub Packages
-      - name: Publish NuGet Package
-        run: |
-          dotnet nuget push ./nuget/*.nupkg \
-            --source "github" \
-            --api-key ${{ secrets.GITHUB_TOKEN }}
+    # Paso 7: Publicar el paquete NuGet en GitHub Packages
+    - name: Publish NuGet Package
+      uses: NuGet/actions/upload-package@v1
+      with:
+        nuget-package-path: ./nupkgs/*.nupkg
+        nuget-api-key: ${{ secrets.GITHUB_TOKEN }}  # Usando el token de GitHub para autenticar la publicación
