@@ -2,7 +2,7 @@ name: Publish Documentation
 
 on:
   push:
-    branches: [ main ] # o la rama que uses
+    branches: [ main ]  # o la rama que uses para activar la generación de documentación
 
 jobs:
   docfx:
@@ -19,17 +19,20 @@ jobs:
 
       - name: Install DocFX
         run: |
+          # Descargar e instalar DocFX
           wget https://github.com/dotnet/docfx/releases/download/v2.59.4/docfx.zip -O docfx.zip
           unzip docfx.zip -d docfx
-          echo "$(pwd)/docfx" >> $GITHUB_PATH
+          echo "$(pwd)/docfx" >> $GITHUB_PATH  # Agregar DocFX al path
 
       - name: Build documentation
         run: |
+          # Generar los metadatos y construir la documentación
           docfx metadata docfx.json
           docfx build docfx.json
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          branch: gh-pages         # rama a donde se subirá el sitio
-          folder: _site            # carpeta generada por docfx
+          branch: gh-pages         # Rama a donde se subirá el sitio
+          folder: _site            # Carpeta generada por DocFX para el sitio web
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # Utilizar token de GitHub para la autenticación
