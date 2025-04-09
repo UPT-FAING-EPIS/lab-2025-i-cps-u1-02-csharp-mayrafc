@@ -20,9 +20,9 @@ jobs:
         with:
           dotnet-version: '8.x'
 
-      # Paso 3: Restaurar dependencias especificando la ruta correcta al archivo .csproj
+      # Paso 3: Restaurar dependencias (ajustar la ruta de tu archivo .csproj si es necesario)
       - name: Restore dependencies
-        run: dotnet restore Bank.Domain/Bank.Domain.csproj  # Asegúrate de que la ruta sea correcta
+        run: dotnet restore src/Bank.Domain/Bank.Domain.csproj  # Ajusta la ruta según sea necesario
 
       # Paso 4: Ejecutar pruebas unitarias
       - name: Run Unit Tests
@@ -40,11 +40,11 @@ jobs:
 
       # Paso 6: Construir el proyecto
       - name: Build .NET Project
-        run: dotnet build Bank.Domain/Bank.Domain.csproj --configuration Release
+        run: dotnet build src/Bank.Domain/Bank.Domain.csproj --configuration Release  # Ajusta la ruta si es necesario
 
       # Paso 7: Crear paquete NuGet
       - name: Create NuGet Package
-        run: dotnet pack Bank.Domain/Bank.Domain.csproj --configuration Release --output ./nuget
+        run: dotnet pack src/Bank.Domain/Bank.Domain.csproj --configuration Release --output ./nuget  # Ajusta la ruta si es necesario
 
       # Paso 8: Publicar paquete NuGet en GitHub Packages
       - name: Publish NuGet Package
