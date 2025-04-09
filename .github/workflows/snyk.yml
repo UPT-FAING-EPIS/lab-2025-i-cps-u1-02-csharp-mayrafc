@@ -26,7 +26,7 @@ jobs:
         with:
           sarif_file: snyk.sarif
       - name: Upload HTML report as artifact
-        uses: actions/upload-artifact@v3.1.0  # Actualiza la versión a la más reciente
+        uses: actions/upload-artifact@v4  # Actualizado a la versión v4
         with:
           name: snyk-report
           path: snyk-report.html
