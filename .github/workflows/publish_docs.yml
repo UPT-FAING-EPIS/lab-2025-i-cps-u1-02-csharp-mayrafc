@@ -17,13 +17,10 @@ jobs:
         with:
           dotnet-version: '8.x'
 
-      - name: Download and Extract DocFX
+      - name: Install DocFX locally
         run: |
-          wget https://github.com/dotnet/docfx/releases/download/v2.59.4/docfx.zip -O docfx.zip
-          unzip docfx.zip -d docfx
-          DOCFX_PATH=$(find docfx -name docfx -type f | head -n 1)
-          chmod +x "$DOCFX_PATH"
-          echo "$(dirname "$DOCFX_PATH")" >> $GITHUB_PATH
+          dotnet tool install docfx --version 2.59.4 --tool-path ./tools
+          echo "$(pwd)/tools" >> $GITHUB_PATH
 
       - name: Build documentation
         run: |
