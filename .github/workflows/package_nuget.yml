@@ -20,13 +20,13 @@ jobs:
         with:
           dotnet-version: '8.x'
 
-      # Paso 3: Restaurar dependencias (ajustar la ruta de tu archivo .csproj si es necesario)
+      # Paso 3: Restaurar dependencias (ajustar la ruta de tu archivo .csproj)
       - name: Restore dependencies
-        run: dotnet restore src/Bank.Domain/Bank.Domain.csproj  # Ajusta la ruta según sea necesario
+        run: dotnet restore Bank/Bank.WebApi/Bank.WebApi.csproj
 
       # Paso 4: Ejecutar pruebas unitarias
       - name: Run Unit Tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test Bank/Bank.WebApi/Bank.WebApi.csproj --no-build --verbosity normal
 
       # Paso 5: Análisis con SonarCloud
       - name: SonarCloud Analysis
@@ -40,11 +40,11 @@ jobs:
 
       # Paso 6: Construir el proyecto
       - name: Build .NET Project
-        run: dotnet build src/Bank.Domain/Bank.Domain.csproj --configuration Release  # Ajusta la ruta si es necesario
+        run: dotnet build Bank/Bank.WebApi/Bank.WebApi.csproj --configuration Release
 
       # Paso 7: Crear paquete NuGet
       - name: Create NuGet Package
-        run: dotnet pack src/Bank.Domain/Bank.Domain.csproj --configuration Release --output ./nuget  # Ajusta la ruta si es necesario
+        run: dotnet pack Bank/Bank.WebApi/Bank.WebApi.csproj --configuration Release --output ./nuget
 
       # Paso 8: Publicar paquete NuGet en GitHub Packages
       - name: Publish NuGet Package
