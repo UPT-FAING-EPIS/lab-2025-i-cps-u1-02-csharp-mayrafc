@@ -1,0 +1,55 @@
+name: Package and Analyze with SonarCloud
+
+on:
+  push:
+    branches:
+      - main  # Se ejecuta cuando hay un push a la rama principal
+
+jobs:
+  # Este es el trabajo para la construcción del paquete NuGet y análisis con SonarCloud
+  build-and-analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1: Checkout del código
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Paso 2: Configurar .NET
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      # Paso 3: Instalar dependencias de NuGet
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # Paso 4: Ejecutar pruebas unitarias
+      - name: Run Unit Tests
+        run: dotnet test --no-build --verbosity normal
+
+      # Paso 5: Análisis con SonarCloud
+      - name: SonarCloud Analysis
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          organization: 'apibankk'  # Tu organización en SonarCloud
+          projectKey: 'apibankk_lab2'  # La clave de tu proyecto en SonarCloud
+          projectName: 'lab2'  # El nombre de tu proyecto
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Usa el token que ya configuraste en los Secrets de GitHub
+
+      # Paso 6: Construir el archivo NuGet
+      - name: Build .NET Project
+        run: dotnet build Bank.Domain/Bank.Domain.csproj --configuration Release
+
+      # Paso 7: Crear paquete NuGet
+      - name: Create NuGet Package
+        run: dotnet pack Bank.Domain/Bank.Domain.csproj --configuration Release --output ./nuget
+
+      # Paso 8: Publicar paquete NuGet en GitHub Packages
+      - name: Publish NuGet Package
+        run: |
+          dotnet nuget push ./nuget/*.nupkg \
+            --source "github" \
+            --api-key ${{ secrets.GITHUB_TOKEN }}  # Usar el token de GitHub para autenticarte
