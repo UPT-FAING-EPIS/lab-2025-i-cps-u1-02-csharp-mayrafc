@@ -5,7 +5,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 
-    <!-- Propiedades necesarias para empaquetar NuGet -->
+    <!-- Para permitir la generación del paquete -->
+    <IsPackable>true</IsPackable>
+
+    <!-- Info del paquete NuGet -->
     <PackageId>Bank.WebApi</PackageId>
     <Version>1.0.0</Version>
     <Authors>mayrafc</Authors>
@@ -13,7 +16,6 @@
     <Description>API del banco para gestión financiera</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
   </PropertyGroup>
-
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.4" />
