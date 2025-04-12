@@ -1,0 +1,61 @@
+name: Release Version
+
+on:
+  push:
+    tags:
+      - 'v*'  # Este flujo de trabajo se ejecutará cuando se haga un push de un tag que empiece con 'v'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Paso 1: Check out el código fuente
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # Paso 2: Configurar el SDK de .NET
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    # Paso 3: Restaurar las dependencias
+    - name: Restore dependencies
+      run: dotnet restore
+
+    # Paso 4: Ejecutar las pruebas unitarias
+    - name: Run Unit Tests
+      run: dotnet test --no-restore --verbosity normal
+
+    # Paso 5: Construir el paquete NuGet
+    - name: Build NuGet Package
+      run: dotnet pack Bank/Bank.WebApi/Bank.WebApi.csproj -o ./nupkgs
+
+    # Paso 6: Verificar si se generó el archivo .nupkg
+    - name: Verify .nupkg file
+      run: |
+        if [ -f ./nupkgs/*.nupkg ]; then
+          echo ".nupkg file found!"
+        else
+          echo "No .nupkg file found, aborting release step!"
+          exit 1
+        fi
+
+    # Paso 7: Crear un Release en GitHub
+    - name: Create GitHub Release
+      id: create_release
+      run: |
+        RELEASE_TAG=$(echo ${GITHUB_REF} | sed 's/refs\/tags\///')
+        echo "Creating release for tag: $RELEASE_TAG"
+        gh release create $RELEASE_TAG ./nupkgs/*.nupkg --title "Release $RELEASE_TAG" --notes "Automated release for version $RELEASE_TAG"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    # Paso 8: Subir el paquete a GitHub Releases
+    - name: Upload .nupkg to GitHub Releases
+      run: |
+        RELEASE_TAG=$(echo ${GITHUB_REF} | sed 's/refs\/tags\///')
+        gh release upload $RELEASE_TAG ./nupkgs/*.nupkg --clobber
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
