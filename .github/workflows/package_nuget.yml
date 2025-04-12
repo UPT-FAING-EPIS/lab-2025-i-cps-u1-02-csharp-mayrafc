@@ -66,14 +66,18 @@ jobs:
           exit 1  # Abortamos si el archivo no se encuentra
         fi
 
-
-
     # Paso 9: Publicar el paquete NuGet en GitHub Packages
     - name: Publish NuGet Package to GitHub Packages
       run: |
         echo "Listing .nupkg files:"
-        ls -la ./nupkgs  # Muestra los archivos en la ruta correcta
+        ls -la ./nupkgs
+
+        dotnet nuget add source "https://nuget.pkg.github.com/mayrafc/index.json" \
+          --name github \
+          --username mayrafc \
+          --password ${{ secrets.GHTOKEN }} \
+          --store-password-in-clear-text
+
         dotnet nuget push ./nupkgs/*.nupkg --source "github" --skip-duplicate
       env:
-        GHTOKEN: ${{ secrets.GHTOKEN }}  # Asegúrate de que el token está configurado en los secrets
-
+        GHTOKEN: ${{ secrets.GHTOKEN }}
