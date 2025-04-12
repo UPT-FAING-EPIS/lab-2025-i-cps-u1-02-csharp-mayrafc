@@ -69,12 +69,15 @@ jobs:
     # Paso 9: Publicar el paquete NuGet en GitHub Packages
     - name: Publish NuGet Package to GitHub Packages
       run: |
+        echo "Listing .nupkg files:"
+        ls -la ./nupkgs
+
         dotnet nuget add source "https://nuget.pkg.github.com/mayrafc/index.json" \
           --name github \
           --username mayrafc \
-          --password ${{ secrets.GITHUB_TOKEN }} \
+          --password ${{ secrets.GHTOKEN }} \
           --store-password-in-clear-text
 
-        dotnet nuget push ./nupkgs/*.nupkg --source "github"
+        dotnet nuget push ./nupkgs/*.nupkg --source "github" --skip-duplicate
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Este token es automático, no necesitas configurarlo manualmente.
+        GHTOKEN: ${{ secrets.GHTOKEN }}
