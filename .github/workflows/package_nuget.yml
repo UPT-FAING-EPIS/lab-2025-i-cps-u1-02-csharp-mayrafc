@@ -75,9 +75,9 @@ jobs:
         dotnet nuget add source "https://nuget.pkg.github.com/mayrafc/index.json" \
           --name github \
           --username mayrafc \
-          --password ${{ secrets.GHTOKEN }} \
+          --password ${{ secrets.GIT_TOKEN}} \
           --store-password-in-clear-text
 
         dotnet nuget push ./nupkgs/*.nupkg --source "github" --skip-duplicate
       env:
-        GHTOKEN: ${{ secrets.GHTOKEN }}
+        GHTOKEN: ${{ secrets.GIT_TOKEN}}
