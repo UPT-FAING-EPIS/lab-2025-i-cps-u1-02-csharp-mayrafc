@@ -50,7 +50,7 @@ jobs:
         echo "Creating release for tag: $RELEASE_TAG"
         gh release create $RELEASE_TAG ./nupkgs/*.nupkg --title "Release $RELEASE_TAG" --notes "Automated release for version $RELEASE_TAG"
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
     
     # Paso 8: Subir el paquete a GitHub Releases
     - name: Upload .nupkg to GitHub Releases
@@ -58,4 +58,4 @@ jobs:
         RELEASE_TAG=$(echo ${GITHUB_REF} | sed 's/refs\/tags\///')
         gh release upload $RELEASE_TAG ./nupkgs/*.nupkg --clobber
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
