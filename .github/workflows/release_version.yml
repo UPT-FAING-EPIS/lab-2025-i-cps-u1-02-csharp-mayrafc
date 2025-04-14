@@ -2,8 +2,9 @@ name: Release Version
 
 on:
   push:
+    branches: [main]
     tags:
-      - 'v*'  # Este flujo de trabajo se ejecutará cuando se haga un push de un tag que empiece con 'v'
+      - 'v*'
 
 jobs:
   build:
