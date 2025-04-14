@@ -65,7 +65,14 @@ jobs:
     # Paso 9: Subir el paquete a GitHub Releases
     - name: Upload .nupkg to GitHub Releases
       run: |
-        RELEASE_TAG=$(echo ${GITHUB_REF} | sed 's/refs\/tags\///')  # Extrae el tag del nombre del ref
+        # Extrae el tag del nombre del ref
+        RELEASE_TAG=$(echo ${GITHUB_REF} | sed 's/refs\/tags\///')
+
+        # Verificar que el ref sea un tag, no una rama
+        if [[ "$RELEASE_TAG" == "refs/heads/"* ]]; then
+          echo "This is not a tag push, skipping release upload."
+          exit 0
+        fi
 
         # Verificar si el release ya existe
         RELEASE_EXISTS=$(gh release view $RELEASE_TAG --json name -q ".name" || echo "false")
