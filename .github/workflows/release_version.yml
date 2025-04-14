@@ -51,11 +51,16 @@ jobs:
     - name: Create GitHub Release
       id: create_release
       run: |
-        RELEASE_TAG=$(echo ${GITHUB_REF} | sed 's/refs\/tags\///')
+        RELEASE_TAG=$(echo ${GITHUB_REF} | sed 's/refs\/tags\///')  # Este debería ser un tag, no una rama
+        if [[ $RELEASE_TAG == "refs/heads/"* ]]; then
+          echo "This is not a tag push, skipping release creation."
+          exit 0
+        fi
         echo "Creating release for tag: $RELEASE_TAG"
         gh release create $RELEASE_TAG ./nupkgs/*.nupkg --title "Release $RELEASE_TAG" --notes "Automated release for version $RELEASE_TAG"
       env:
-        GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+        GH_TOKEN: ${{ github.token }}  # Usar el token de GitHub proporcionado por Actions
+
     
     # Paso 9: Subir el paquete a GitHub Releases
     - name: Upload .nupkg to GitHub Releases
