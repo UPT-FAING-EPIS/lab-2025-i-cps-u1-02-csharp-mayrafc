@@ -66,6 +66,18 @@ jobs:
     - name: Upload .nupkg to GitHub Releases
       run: |
         RELEASE_TAG=$(echo ${GITHUB_REF} | sed 's/refs\/tags\///')  # Extrae el tag del nombre del ref
+
+        # Verificar si el release ya existe
+        RELEASE_EXISTS=$(gh release view $RELEASE_TAG --json name -q ".name" || echo "false")
+
+        if [ "$RELEASE_EXISTS" == "false" ]; then
+          echo "Release not found, creating release for tag $RELEASE_TAG."
+          gh release create $RELEASE_TAG ./nupkgs/*.nupkg --title "Release $RELEASE_TAG" --notes "Automated release for version $RELEASE_TAG"
+        else
+          echo "Release $RELEASE_TAG already exists, skipping creation."
+        fi
+
+        # Subir el archivo .nupkg al release
         gh release upload $RELEASE_TAG ./nupkgs/*.nupkg --clobber
       env:
         GH_TOKEN: ${{ github.token }}  # Usar el token automático de GitHub Actions
