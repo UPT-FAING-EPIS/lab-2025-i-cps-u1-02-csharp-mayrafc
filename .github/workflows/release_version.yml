@@ -65,7 +65,8 @@ jobs:
     # Paso 9: Subir el paquete a GitHub Releases
     - name: Upload .nupkg to GitHub Releases
       run: |
-        RELEASE_TAG=$(echo ${GITHUB_REF} | sed 's/refs\/tags\///')
+        RELEASE_TAG=$(echo ${GITHUB_REF} | sed 's/refs\/tags\///')  # Extrae el tag del nombre del ref
         gh release upload $RELEASE_TAG ./nupkgs/*.nupkg --clobber
       env:
-        GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+        GH_TOKEN: ${{ github.token }}  # Usar el token automático de GitHub Actions
+
