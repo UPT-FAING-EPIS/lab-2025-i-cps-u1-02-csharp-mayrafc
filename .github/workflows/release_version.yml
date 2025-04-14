@@ -2,57 +2,65 @@ name: Release Version
 
 on:
   push:
+    branches: [main]
     tags:
       - 'v*'
-    branches:
-      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    
     steps:
+    # Paso 1: Check out el código fuente
     - name: Checkout code
       uses: actions/checkout@v2
 
+    # Paso 2: Configurar el SDK de .NET
     - name: Set up .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '8.0.x'
 
-    - name: Restore dependencies
+    # Paso 3: Restaurar las dependencias para el proyecto principal
+    - name: Restore dependencies for main project
       run: dotnet restore Bank/Bank.WebApi/Bank.WebApi.csproj
 
+    # Paso 4: Restaurar las dependencias para el proyecto de pruebas
+    - name: Restore dependencies for test project
+      run: dotnet restore Bank/Bank.WebApi.Tests/Bank.WebApi.Tests.csproj
+
+    # Paso 5: Ejecutar las pruebas unitarias
     - name: Run Unit Tests
       run: dotnet test Bank/Bank.WebApi.Tests/Bank.WebApi.Tests.csproj --no-restore --verbosity normal
 
-
+    # Paso 6: Construir el paquete NuGet
     - name: Build NuGet Package
       run: dotnet pack Bank/Bank.WebApi/Bank.WebApi.csproj -o ./nupkgs
 
+    # Paso 7: Verificar si se generó el archivo .nupkg
     - name: Verify .nupkg file
       run: |
-        if ls ./nupkgs/*.nupkg 1> /dev/null 2>&1; then
+        if [ -f ./nupkgs/*.nupkg ]; then
           echo ".nupkg file found!"
         else
           echo "No .nupkg file found, aborting release step!"
           exit 1
         fi
 
-    - name: Install GitHub CLI
-      run: sudo apt-get install gh -y
-
+    # Paso 8: Crear un Release en GitHub
     - name: Create GitHub Release
+      id: create_release
       run: |
         RELEASE_TAG=$(echo ${GITHUB_REF} | sed 's/refs\/tags\///')
         echo "Creating release for tag: $RELEASE_TAG"
         gh release create $RELEASE_TAG ./nupkgs/*.nupkg --title "Release $RELEASE_TAG" --notes "Automated release for version $RELEASE_TAG"
       env:
-        GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
-
+        GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+    
+    # Paso 9: Subir el paquete a GitHub Releases
     - name: Upload .nupkg to GitHub Releases
       run: |
         RELEASE_TAG=$(echo ${GITHUB_REF} | sed 's/refs\/tags\///')
         gh release upload $RELEASE_TAG ./nupkgs/*.nupkg --clobber
       env:
-        GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+        GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
