@@ -24,7 +24,8 @@ jobs:
       run: dotnet restore Bank/Bank.WebApi/Bank.WebApi.csproj
 
     - name: Run Unit Tests
-      run: dotnet test Bank/Bank.Tests/Bank.Tests.csproj --no-restore --verbosity normal
+      run: dotnet test Bank/Bank.WebApi.Tests/Bank.WebApi.Tests.csproj --no-restore --verbosity normal
+
 
     - name: Build NuGet Package
       run: dotnet pack Bank/Bank.WebApi/Bank.WebApi.csproj -o ./nupkgs
